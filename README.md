@@ -1,4 +1,4 @@
 VW_KMap
 =======
-
-Senior project: Michael VanWie
+@author Michael VanWie
+UF CISE Senior Project: KMap Solver intended for educational purposes.
