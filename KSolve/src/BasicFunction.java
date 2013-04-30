@@ -1,9 +1,20 @@
 /*
  * @author Michael VanWie
- * call more than once for 3 or more variables in a function
+ * 
+ * This class is used to evaluate the basic binary operators
+ * used for KSolver. Binary operator |(OR) and &(AND)
+ * 
+ * Example: int result = (new BasicFunction(1,1,2)).evalBF();
+ * 			This will call the AND function on 1 and 1
+ * 			the value returned will be the result of 1&1
+ * 						
+ *   
+ *  call more than once for 3 or more variables in a function
  *  A&(B&(C&(D&(E&F))))
  *	
  */
+
+//TODO: note: the not operator explination.
 
 
 public class BasicFunction {
@@ -20,20 +31,15 @@ public class BasicFunction {
 	
 	public int evalBF(){
 		if(flag == 1) {
-			result = (a|b);
+			//System.out.println("evalBF(): A+B");
+			result = a|b;
+			//System.out.println("a,b,result: "+a+","+b+",b"+","+result);
 		}
 		else if(flag == 2){
-			System.out.println("A&B");
+			//System.out.println("A&B");
 			result = a&b;
-		}
-		
-		if(result ==-1){
-			result = 1;
-		}
-		else if(result ==-2){
-			result = 0;
-		}
-		
+		}		
 		return result;
 	}
+
 }
