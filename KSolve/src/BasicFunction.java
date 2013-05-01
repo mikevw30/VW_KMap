@@ -38,7 +38,7 @@ public class BasicFunction {
 		else if(flag == 2){
 			//System.out.println("A&B");
 			result = a&b;
-		}		
+		}
 		return result;
 	}
 

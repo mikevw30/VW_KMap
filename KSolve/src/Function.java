@@ -25,26 +25,50 @@ public class Function {
 		this.input = input;
 	}
 	
-	/*
-	 * Pseudo code for readInput() found below
-	 * http://faculty.cs.niu.edu/~hutchins/csci241/eval.htm
-	 */
-	
-	public void readInput(){
+	public void normalizeInput(){
+		String checkedInput = "";
 		int index = 0;
 		int end = input.length();
 		char prevChar = input.charAt(index);
 		char charAtIndex = input.charAt(index);
-		boolean first = true;
-		while(index != end){  //while we arent at the end of the input
-			//System.out.println("im here 1");
+		while(index != end){
 			charAtIndex = input.charAt(index);
+			System.out.println("c,i: "+charAtIndex+","+index);
 			
-			//System.out.println("c,p: "+charAtIndex+","+prevChar);
+			if(((charAtIndex >= 'A' && charAtIndex <= 'Z')||(charAtIndex == '~')) && (prevChar >='A' && prevChar <= 'Z') && index!=0){
+				checkedInput += '&';
+			}	
+			if((charAtIndex >= 'A' && charAtIndex <= 'Z')&&prevChar ==')' && index!=0){
+				checkedInput += '&';
+			}
+			if(charAtIndex == '('&& (prevChar =='(' || prevChar ==')'|| prevChar >='A' && prevChar <= 'Z' )&& index!=0){
+				checkedInput += '&';
+			}
+			if(charAtIndex == '~'&& prevChar ==')'&& index!=0){
+				checkedInput += '&';
+			}
 			
-			
+			prevChar = charAtIndex;
+			checkedInput += charAtIndex;
+			index++;
+		}
+		input = checkedInput;
+		System.out.println(input);
+	}
+	
+
+	
+	/*
+	 * Pseudo code for readInput() found below
+	 * http://faculty.cs.niu.edu/~hutchins/csci241/eval.htm
+	 */
+	public void readInput(){
+		int index = 0;
+		int end = input.length();
+		char charAtIndex = input.charAt(index);
+		while(index != end){  //while we arent at the end of the input
+			charAtIndex = input.charAt(index);
 			if(charAtIndex >= 'A' && charAtIndex <= 'Z'){ //check for valid operand (capital letters that represent variables)
-				//System.out.println(charAtIndex+"here1");
 				postFix += charAtIndex;	//add charAtIndex to postFix
 				if(!varArr.contains(charAtIndex)){ //get unique operators and count them
 					varArr.add(charAtIndex);
@@ -52,25 +76,27 @@ public class Function {
 				}
 			}
 			if(charAtIndex == '('){// if left paren
-				if(prevChar >= 'A' && prevChar <= 'Z'){
-					funS.push('&');
-				}
+				//System.out.println("found a ("+index+": "+charAtIndex);
 				funS.push('('); //push it to stack
 			}
 			if(charAtIndex == ')'){ //if right paren
+				//System.out.println("found a )"+index+": "+charAtIndex);
 				while(!funS.isEmpty() && !funS.peek().equals('(')){ //while the stack isn't empty and stack.peek is NOT a left paren
 					postFix += funS.pop();// pop the stack and add that value to postFix  
 				}
 				funS.pop(); //get rid of the left paren.
 			}
-			if(charAtIndex == '+' || (charAtIndex >= 'A' && charAtIndex <= 'Z' && prevChar >= 'A' && prevChar <= 'Z') && !first){
-				if(funS.isEmpty() || funS.peek().equals('(')){ //if the stack is empty or peek == (
-					
-					if(charAtIndex == '+'){// if i found a  operator push it.
+			if(charAtIndex == '~' || charAtIndex == '+' || charAtIndex == '&'){
+				//System.out.println("found a operator"+index+": "+charAtIndex);
+				if(funS.isEmpty() || funS.peek().equals('(') ){ //if the stack is empty or peek == (
+					if(charAtIndex == '~'){//if i found an operator push it
 						funS.push(charAtIndex);
 					}
-					else{
-						funS.push('&');
+					if(charAtIndex == '+'){//if i found an operator push it
+						funS.push(charAtIndex);
+					}
+					if(charAtIndex == '&'){//if i found an operator push it
+						funS.push(charAtIndex);
 					}
 				}
 				else{
@@ -82,29 +108,34 @@ public class Function {
 				}
 			}
 			index++;
-			prevChar = charAtIndex;
-			first = false;
 		}	
 		while(!funS.isEmpty()){
-			//System.out.println("im here4");
 			postFix += funS.pop();
 		}
 		truthTable = new TruthTable(numVar); //init the truth table.
 		Collections.sort(varArr);			//alpha sort the variables in the truth table.
 	}
-	
+	/*
+	 * Order of operations helper function
+	 * char
+	 * ~
+	 * &
+	 * +
+	 */
 	public boolean checkStack(char charAtIndex, char top){ //checking order of operations.
-		if(top>= 'A' && top<= 'Z'){
+		
+		
+		if( charAtIndex == '+' &&  (top == '~'||top =='&'|| (top >= 'A'&&top <='Z'))){
 			return true;
 		}
-		else if(charAtIndex == '+' && top == '&'){
+		else if(charAtIndex == '&' && (top == '~' || (top >= 'A' && top <='Z'))){
 			return true;
 		}
-		else if(charAtIndex == '&' && top == '+'){
-			return false;
+		else if(charAtIndex == '~' && (top >= 'A' && top <='Z')){
+			return true;
 		}
 		else{
-			return true;
+			return false;
 		}
 	}
 	
@@ -113,7 +144,6 @@ public class Function {
 		Stack<Integer> evalS = new Stack<Integer>();
 		int index = 0;
 		int end = postFix.length();
-		int opp = 0;
 	
 		while (index!=end){
 			char charAtIndex = postFix.charAt(index);
@@ -126,19 +156,27 @@ public class Function {
 	        		}
 				}
 	           evalS.push(truthTable.grid[gridRow].row[(numVar-1)-i]);
-	        }//End-If
+	        }
 	        else{// an operator is found
+	        	int result = -1;
+	        	
 	        	if(charAtIndex == '&'){
-	        		opp = 2;
-	        		}
-	        	else{
-	        		opp = 1;
+	        		result = (new BasicFunction(evalS.pop(),evalS.pop(),2)).evalBF();
 	        	}
-	        	int result = (new BasicFunction(evalS.pop(),evalS.pop(),opp)).evalBF();
+	        	else if(charAtIndex == '+'){
+	        		result = (new BasicFunction(evalS.pop(),evalS.pop(),1)).evalBF();
+	        	}
+	        	else if(charAtIndex == '~'){
+	        		result = evalS.pop();
+	        		if(result == 1)
+	        			result = 0;
+	        		else
+	        			result = 1;
+	        	}
 				evalS.push(result);
-			}//End-If
+			}
 	        index++;
-		}//End-While
+		}
 		return evalS.pop();
 	}	
 	
