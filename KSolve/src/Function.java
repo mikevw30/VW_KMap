@@ -33,27 +33,23 @@ public class Function {
 		char charAtIndex = input.charAt(index);
 		while(index != end){
 			charAtIndex = input.charAt(index);
-			System.out.println("c,i: "+charAtIndex+","+index);
-			
 			if(((charAtIndex >= 'A' && charAtIndex <= 'Z')||(charAtIndex == '~')) && (prevChar >='A' && prevChar <= 'Z') && index!=0){
 				checkedInput += '&';
 			}	
 			if((charAtIndex >= 'A' && charAtIndex <= 'Z')&&prevChar ==')' && index!=0){
 				checkedInput += '&';
 			}
-			if(charAtIndex == '('&& (prevChar =='(' || prevChar ==')'|| prevChar >='A' && prevChar <= 'Z' )&& index!=0){
+			if(charAtIndex == '('&& ( prevChar ==')'|| prevChar >='A' && prevChar <= 'Z' )&& index!=0){
 				checkedInput += '&';
-			}
+			}//prevChar =='(' ||
 			if(charAtIndex == '~'&& prevChar ==')'&& index!=0){
 				checkedInput += '&';
 			}
-			
 			prevChar = charAtIndex;
 			checkedInput += charAtIndex;
 			index++;
 		}
 		input = checkedInput;
-		System.out.println(input);
 	}
 	
 
@@ -86,18 +82,10 @@ public class Function {
 				}
 				funS.pop(); //get rid of the left paren.
 			}
-			if(charAtIndex == '~' || charAtIndex == '+' || charAtIndex == '&'){
+			if(charAtIndex == '~' || charAtIndex == '+' || charAtIndex == '&' || charAtIndex == '^'){
 				//System.out.println("found a operator"+index+": "+charAtIndex);
 				if(funS.isEmpty() || funS.peek().equals('(') ){ //if the stack is empty or peek == (
-					if(charAtIndex == '~'){//if i found an operator push it
 						funS.push(charAtIndex);
-					}
-					if(charAtIndex == '+'){//if i found an operator push it
-						funS.push(charAtIndex);
-					}
-					if(charAtIndex == '&'){//if i found an operator push it
-						funS.push(charAtIndex);
-					}
 				}
 				else{
 					while(!funS.isEmpty() && !funS.peek().equals('(') && checkStack(charAtIndex,funS.peek())){
@@ -115,19 +103,15 @@ public class Function {
 		truthTable = new TruthTable(numVar); //init the truth table.
 		Collections.sort(varArr);			//alpha sort the variables in the truth table.
 	}
-	/*
-	 * Order of operations helper function
-	 * char
-	 * ~
-	 * &
-	 * +
-	 */
+
 	public boolean checkStack(char charAtIndex, char top){ //checking order of operations.
-		
-		
-		if( charAtIndex == '+' &&  (top == '~'||top =='&'|| (top >= 'A'&&top <='Z'))){
+		if( charAtIndex == '+' &&  (top == '~' || top =='&' ||top =='^' || (top >= 'A'&&top <='Z'))){
 			return true;
 		}
+		else if(charAtIndex == '^' && (top == '~' || top =='&' || (top >= 'A' && top <='Z'))){
+			return true;
+		}
+		
 		else if(charAtIndex == '&' && (top == '~' || (top >= 'A' && top <='Z'))){
 			return true;
 		}
@@ -138,7 +122,6 @@ public class Function {
 			return false;
 		}
 	}
-	
 	
 	public int evelInput(int gridRow){
 		Stack<Integer> evalS = new Stack<Integer>();
@@ -163,6 +146,9 @@ public class Function {
 	        	if(charAtIndex == '&'){
 	        		result = (new BasicFunction(evalS.pop(),evalS.pop(),2)).evalBF();
 	        	}
+	        	else if(charAtIndex == '^'){
+	        		result = (new BasicFunction(evalS.pop(),evalS.pop(),3)).evalBF();
+	        	}
 	        	else if(charAtIndex == '+'){
 	        		result = (new BasicFunction(evalS.pop(),evalS.pop(),1)).evalBF();
 	        	}
@@ -180,7 +166,7 @@ public class Function {
 		return evalS.pop();
 	}	
 	
-	public void setResult(){
+	public void fillResult(){
 		for (int i = 0; i < Math.pow(2, numVar); i++) {
 			int temp = evelInput(i);
 			truthTable.grid[i].setValue(temp);
@@ -200,4 +186,9 @@ public class Function {
 		
 		return t;
 	}
+	
+	public int getNumVar(){
+		return numVar;
+	}
+	
 }

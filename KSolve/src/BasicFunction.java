@@ -39,6 +39,10 @@ public class BasicFunction {
 			//System.out.println("A&B");
 			result = a&b;
 		}
+		else if(flag == 3){
+			//System.out.println("A^B");
+			result = a^b;
+		}
 		return result;
 	}
 

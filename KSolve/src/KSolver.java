@@ -1,7 +1,7 @@
 
 public class KSolver {
 	Function function;
-	TruthTable truthTable;
+	KMap kMap;
 	
 	public KSolver(){
 		//init gui here
@@ -10,14 +10,32 @@ public class KSolver {
 	public void truthSolve(){
 		function.normalizeInput();
 		function.readInput(); 
-		function.setResult();
+		function.fillResult();
+	}
+	
+	public void initKMapWithTable(){
+		kMap = new KMap(function.getNumVar());
+		kMap.fillMap(function.truthTable);
+	}
+	
+	public String toString(){
+		return function.toString()+"\n"+ kMap.toString();
 	}
 	
 	public static void main(String[] args) {
 		KSolver kSolve = new KSolver();
-		kSolve.function = new Function("ABCDEFGHIJKLMNOP");//TODO: FIX EXTRA ()()(()((())) paren's
+		kSolve.function = new Function("~A~B~C~D");
 		kSolve.truthSolve();
-		System.out.println(kSolve.function.postFix+"\n\n");
-		System.out.println(kSolve.function.toString());
+		kSolve.initKMapWithTable();
+		
+		System.out.println(kSolve.toString());
 	}
 }
+
+
+//	   \  00,01,11,10
+//		\____________
+//	00	|
+//	01	|
+//	11	|
+//	10	|
